@@ -1,0 +1,4 @@
+﻿Practice 1: 
+Generate two models: 
+	"Product": "ID", "Name", "CategoryID" (FK to Category)
+	"Category": "ID", "Name"
