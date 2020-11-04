@@ -35,6 +35,18 @@ namespace ProductInformation.Models
                 .HasCharSet("utf8mb4")
                 .HasCollation("utf8mb4_general_ci");
 
+                entity.HasData(
+                    new Category()
+                    {
+                        ID = -1,
+                        Name = "Furniture"
+                    },
+                    new Category()
+                    {
+                        ID = -2,
+                        Name = "Electronics"
+                    }
+                 );
                                
             });
             modelBuilder.Entity<Product>(entity =>
@@ -55,7 +67,38 @@ namespace ProductInformation.Models
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName(keyName);
 
-               
+                entity.HasData(
+                new Product()
+                {
+                    ID = -4,
+                    Name = "Computer",
+                    CategoryID = -2
+                }, new Product()
+                {
+                    ID = -5,
+                    Name = "Music System",
+                    CategoryID = -2
+                },
+                new Product()
+                {
+                    ID = -1,
+                    Name = "Chair",
+                    CategoryID = -1
+                },
+                new Product()
+                {
+                    ID = -2,
+                    Name = "Table",
+                    CategoryID = -1
+                },
+                new Product()
+                {
+                    ID = -3,
+                    Name = "TV",
+                    CategoryID = -2
+                }
+
+                );
             });
         }
     }
