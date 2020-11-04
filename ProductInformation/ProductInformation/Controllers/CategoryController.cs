@@ -148,5 +148,14 @@ namespace ProductInformation.Controllers
         {
             return _context.Categories.Any(e => e.ID == id);
         }
+        public static List<Category> GetCategories()
+        {
+            List<Category> results;
+            using (ProductInfoContext context = new ProductInfoContext())
+            {
+                results = context.Categories.ToList();
+            }
+            return results;
+        }
     }
 }

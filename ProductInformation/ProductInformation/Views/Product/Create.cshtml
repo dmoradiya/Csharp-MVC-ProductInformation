@@ -4,4 +4,31 @@
 }
 
 <h1>Create</h1>
+@if (ViewBag.Message != null)
+{
+    <p class="alert-@(ViewBag.Error != null ? "danger" : "success")">@(ViewBag.Message)</p>
+}
 
+<form action="/Product/Create" method="post">
+    <div>
+        <label for="categoryID">Product Category:</label>
+        <select id="categoryID" name="categoryID">
+            @foreach (Category category in ViewBag.Categories)
+            {
+                @if (category.ID.ToString() == ViewBag.CategoryID)
+                {
+                    <option value="@(category.ID)" selected>@(category.Name)</option>
+                }
+                else
+                {
+                    <option value="@(category.ID)">@(category.Name)</option>
+                }
+            }
+        </select>
+    </div>
+    <div>
+        <label for="name">Product Name:</label>
+        <input type="text" id="name" name="name" value="@(ViewBag.Name)" />
+    </div>
+    <input type="submit" value="Go" />
+</form>
