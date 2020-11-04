@@ -45,7 +45,12 @@ namespace ProductInformation.Models
                     {
                         ID = -2,
                         Name = "Electronics"
-                    }
+                    },
+                     new Category()
+                     {
+                         ID = -3,
+                         Name = "Auto"
+                     }
                  );
                                
             });
@@ -96,6 +101,12 @@ namespace ProductInformation.Models
                     ID = -3,
                     Name = "TV",
                     CategoryID = -2
+                },
+                new Product()
+                {
+                    ID = -6,
+                    Name = "Tires",
+                    CategoryID = -3
                 }
 
                 );
