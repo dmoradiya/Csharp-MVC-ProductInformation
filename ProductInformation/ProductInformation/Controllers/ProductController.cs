@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProductInformation.Models;
+using ProductInformation.Models.Exceptions;
+
+
 
 namespace ProductInformation.Controllers
 {
@@ -19,18 +22,19 @@ namespace ProductInformation.Controllers
         public IActionResult Create(string categoryID, string name)
         {
             // If you're using GET submission, you can use Request.Query.Count to check for query string parameters.
-            if (Request.Method == "POST")
+            if (Request.Query.Count > 0)
             {
                 try
                 {
                     CreateProduct(categoryID, name);
                     ViewBag.Message = $"Successfully Created Product {name}!";
                 }
-                catch (Exception e)
+                catch (ValidationException e)
                 {
                     ViewBag.CategoryID = categoryID;
                     ViewBag.Name = name;
-                    ViewBag.Message = "Error: " + e.Message;
+                    ViewBag.Message = "There exist problem(s) with your submission, see below.";
+                    ViewBag.Exception = e;
                     ViewBag.Error = true;
                 }
             }
@@ -60,7 +64,8 @@ namespace ProductInformation.Controllers
 
         public void CreateProduct(string categoryID, string name)
         {
-            int parsedCategoryID;
+            int parsedCategoryID = 0;
+            ValidationException exception = new ValidationException();
 
             // Trim the values so we don't need to do it a bunch of times later.
             categoryID = categoryID != null ? categoryID.Trim() : null;
@@ -72,26 +77,35 @@ namespace ProductInformation.Controllers
             // No value for category ID.
             if (string.IsNullOrWhiteSpace(categoryID))
             {
-                throw new Exception("Category ID Not Provided");
+                exception.ValidationExceptions.Add(new Exception("Category ID Not Provided"));
+            }
+            else
+            {
+                // Category ID fails parse.
+                if (!int.TryParse(categoryID, out parsedCategoryID))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Category ID Not Valid"));
+                }
             }
 
-            // Category ID fails parse.
-            if (!int.TryParse(categoryID, out parsedCategoryID))
-            {
-                throw new Exception("Category ID Not Valid");
-            }
+
 
             // No value for name.
             if (string.IsNullOrWhiteSpace(name))
             {
-                throw new Exception("Name Not Provided");
+                exception.ValidationExceptions.Add(new Exception("Name Not Provided"));
             }
 
             using (ProductInfoContext context = new ProductInfoContext())
             {
                 if (context.Categories.Where(x => x.ID == parsedCategoryID).Count() < 1)
                 {
-                    throw new Exception("Category Does Not Exist");
+                    exception.ValidationExceptions.Add(new Exception("Category Does Not Exist"));
+                }
+
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
                 }
 
                 context.Products.Add(new Product()

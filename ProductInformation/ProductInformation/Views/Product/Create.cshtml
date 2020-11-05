@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Create";
 }
 
@@ -7,9 +6,18 @@
 @if (ViewBag.Message != null)
 {
     <p class="alert-@(ViewBag.Error != null ? "danger" : "success")">@(ViewBag.Message)</p>
+    if (ViewBag.Error != null)
+    {
+        <ul>
+            @foreach (Exception e in ViewBag.Exception.ValidationExceptions)
+            {
+                <li class="alert-danger">@(e.Message)</li>
+            }
+        </ul>
+    }
 }
 
-<form action="/Product/Create" method="post">
+<form action="/Product/Create" method="get">
     <div>
         <label for="categoryID">Product Category:</label>
         <select id="categoryID" name="categoryID">
