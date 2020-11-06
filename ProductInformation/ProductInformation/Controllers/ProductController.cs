@@ -46,9 +46,18 @@ namespace ProductInformation.Controllers
             return View();
         }
 
-        public IActionResult List()
+        public IActionResult List(string filter)
         {
-            ViewBag.Products = GetProducts();
+            if (filter == "Electronics")
+            {
+                ViewBag.Products = GetElectronicsProducts();
+                ViewBag.Filter = true;
+            }
+            else
+            {
+                ViewBag.Products = GetProducts();
+                ViewBag.Filter = false;
+            }
             return View();
         }
 
@@ -64,7 +73,15 @@ namespace ProductInformation.Controllers
             }
             return results;
         }
-
+        public List<Product> GetElectronicsProducts()
+        {
+            List<Product> results;
+            using (ProductInfoContext context = new ProductInfoContext())
+            {
+                results = context.Products.Include(x => x.Category).Where(x => x.Category.Name == "Electronics").ToList();
+            }
+            return results;
+        }
         public void CreateProduct(string categoryID, string name)
         {
             int parsedCategoryID = 0;
