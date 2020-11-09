@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ProductInformation.Models;
+using ProductInformation.Models.Exceptions;
 
 namespace ProductInformation.Controllers
 {
@@ -43,6 +44,131 @@ namespace ProductInformation.Controllers
         public ActionResult<IEnumerable<Product>> AllProducts_GET()
         {
             return new ProductController().GetProducts();
+        }
+        [HttpGet("ByID")]
+        public ActionResult<Product> ProductByID_GET(string productID)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().GetProductByID(productID);
+            }
+            catch (ArgumentNullException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                result = NotFound(e.Message);
+            }
+            return result;
+        }
+
+        [HttpGet("ByCategoryID")]
+        public ActionResult<IEnumerable<Product>> ProductsByCategoryID_GET(string categoryID)
+        {
+            ActionResult<IEnumerable<Product>> result;
+            try
+            {
+                result = new ProductController().GetProductsByCategoryID(categoryID);
+
+            }
+            catch (ArgumentNullException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (KeyNotFoundException e)
+            {
+                result = NotFound(e.Message);
+            }
+            return result;
+        }
+
+        [HttpPost("Create")]
+        public ActionResult<Product> ProductCreate_POST(string categoryID, string name)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().CreateProduct(categoryID, name);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Creation: " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+
+        }
+
+        [HttpPut("Update")]
+        public ActionResult<Product> ProductUpdate_PUT(string productID, string name)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().UpdateProductByID(productID, name);
+            }
+            catch (ArgumentNullException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                result = NotFound(e.Message);
+            }
+            return result;
+
+        }
+
+        [HttpPatch("Patch")]
+        public ActionResult<Product> ProductUpdate_PATCH(string productID, string propertyName, string newValue)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                if (propertyName == "Name")
+                {
+                    result = new ProductController().UpdateProductByID(productID, newValue);
+                }
+                else
+                {
+                    result = BadRequest("Unknown property specified, please try again.");
+                }
+            }
+            catch (ArgumentNullException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                result = BadRequest(e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                result = NotFound(e.Message);
+            }
+            return result;
+
         }
     }
 }
