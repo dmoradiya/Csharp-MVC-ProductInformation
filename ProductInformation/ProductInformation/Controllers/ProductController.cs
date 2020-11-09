@@ -64,6 +64,24 @@ namespace ProductInformation.Controllers
 
 
         // Data Methods:
+        public void GroupByExample()
+        {
+            using (ProductInfoContext context = new ProductInfoContext())
+            {
+                var results = context.Products
+                    // Group by the foreign key.
+                    .GroupBy(x => x.CategoryID)
+                    // Select a new anonymous object with the fields you want.
+                    // I used the ID we grouped by (x.Key) and an aggregate of the grouping's object Name lengths
+                    .Select(x => new
+                    {
+                        ID = x.Key,
+                        MaxLength = x.Max(y => y.Name.Length)
+                    }).ToList();
+            }
+
+        }
+
         public List<Product> GetProducts()
         {
             List<Product> results;
@@ -72,6 +90,58 @@ namespace ProductInformation.Controllers
                 results = context.Products.Include(x => x.Category).ToList();
             }
             return results;
+        }
+        public List<Product> GetProductsByCategoryID(string categoryID)
+        {
+
+            List<Product> results;
+            int parsedCategoryID;
+
+            if (string.IsNullOrWhiteSpace(categoryID))
+            {
+                throw new ArgumentNullException(nameof(categoryID), "CategoryID is null.");
+            }
+            if (!int.TryParse(categoryID, out parsedCategoryID))
+            {
+                throw new ArgumentException("CategoryID is not valid.", nameof(categoryID));
+            }
+
+            using (ProductInfoContext context = new ProductInfoContext())
+            {
+                if (!context.Categories.Any(x => x.ID == parsedCategoryID))
+                {
+                    throw new KeyNotFoundException($"Category ID {parsedCategoryID} does not exist.");
+                }
+
+                results = context.Products.Where(x => x.CategoryID == parsedCategoryID).Include(x => x.Category).ToList();
+            }
+            return results;
+        }
+
+        public Product GetProductByID(string productID)
+        {
+            Product result;
+            int parsedID;
+
+            if (string.IsNullOrWhiteSpace(productID))
+            {
+                throw new ArgumentNullException(nameof(productID), "CategoryID is null.");
+            }
+            if (!int.TryParse(productID, out parsedID))
+            {
+                throw new ArgumentException("CategoryID is not valid.", nameof(productID));
+            }
+
+            using (ProductInfoContext context = new ProductInfoContext())
+            {
+                if (!context.Products.Any(x => x.ID == parsedID))
+                {
+                    throw new KeyNotFoundException($"Product ID {parsedID} does not exist.");
+                }
+
+                result = context.Products.Where(x => x.ID == parsedID).Include(x => x.Category).Single();
+            }
+            return result;
         }
         public List<Product> GetElectronicsProducts()
         {
